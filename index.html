@@ -34,13 +34,22 @@
 
         .update-banner {
             font-size: 0.65rem;
-            color: #666;
+            color: #fff;
+            opacity: 0.8;
             text-transform: uppercase;
             letter-spacing: 1px;
             text-align: center;
             margin-bottom: 8px;
             border-bottom: 1px solid #111;
             padding-bottom: 4px;
+            display: block;
+            text-decoration: none;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .update-banner:active {
+            opacity: 1;
         }
 
         #hero-image-container {
@@ -150,6 +159,7 @@
             border-radius: 3px;
             margin-bottom: 10px;
             overflow: hidden;
+            opacity: 0.6;
         }
 
         #progress-bar { width: 0%; height: 100%; background: var(--accent); }
@@ -317,6 +327,60 @@
             height: 100%;
         }
 
+
+        @keyframes welcomeOverlayIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes welcomeOverlayOut {
+            from { opacity: 1; visibility: visible; }
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes welcomeCardIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.985);
+                filter: blur(3px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes welcomeImageOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+            to {
+                opacity: 0;
+                transform: scale(1.015);
+                filter: blur(5px);
+            }
+        }
+
+        @keyframes playTapPulse {
+            0% { transform: scale(1); opacity: 1; }
+            45% { transform: scale(1.32); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        @keyframes playRingPulse {
+            0% {
+                opacity: 0.45;
+                transform: translate(-50%, -50%) scale(0.55);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.55);
+            }
+        }
+
         .welcome-overlay {
             position: fixed;
             inset: 0;
@@ -328,7 +392,13 @@
             box-sizing: border-box;
             opacity: 1;
             visibility: visible;
+            animation: welcomeOverlayIn 0.45s ease both;
             transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+
+        .welcome-overlay.is-exiting {
+            pointer-events: none;
+            animation: welcomeOverlayOut 0.55s ease forwards;
         }
 
         .welcome-overlay.is-hidden {
@@ -339,30 +409,77 @@
 
         .welcome-card {
             width: min(100%, 520px);
-            display: grid;
-            gap: 14px;
+            display: block;
+            position: relative;
+            animation: welcomeCardIn 0.55s ease 0.08s both;
         }
 
         .welcome-card img {
             width: 100%;
             height: auto;
             display: block;
+            transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+        }
+
+        .welcome-overlay.is-exiting .welcome-card img {
+            animation: welcomeImageOut 0.52s ease forwards;
         }
 
         .welcome-start-button {
-            min-height: 44px;
-            border-radius: 999px;
-            border: 1px solid var(--accent);
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            border: 0;
+            border-radius: 0;
             background: transparent;
+            opacity: 0.7;
             color: var(--accent);
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            overflow: hidden;
         }
 
-        .welcome-start-button:active {
-            background: rgba(255, 149, 0, 0.12);
+        .welcome-start-button::before,
+        .welcome-start-button::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: clamp(76px, 22vw, 116px);
+            height: clamp(76px, 22vw, 116px);
+            border-radius: 999px;
+            background: #ff9500;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.55);
+            pointer-events: none;
+        }
+
+        .welcome-start-button:active .welcome-play-icon {
+            transform: scale(0.96);
+        }
+
+        .welcome-overlay.is-exiting .welcome-start-button::before {
+            animation: playRingPulse 0.52s ease-out forwards;
+        }
+
+        .welcome-overlay.is-exiting .welcome-start-button::after {
+            animation: playRingPulse 0.52s ease-out 0.12s forwards;
+        }
+
+        .welcome-play-icon {
+            width: clamp(76px, 22vw, 116px);
+            height: clamp(76px, 22vw, 116px);
+            filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.65));
+            transition: transform 0.16s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-overlay.is-exiting .welcome-play-icon {
+            animation: playTapPulse 0.52s cubic-bezier(0.333, 0, 0.667, 1) forwards;
         }
 
 
@@ -472,11 +589,11 @@
     <div class="welcome-overlay" id="welcome-overlay" role="dialog" aria-modal="true" aria-label="Santa Fe Sampler introduction">
         <div class="welcome-card">
             <img src="welcome.png" alt="Memory & Mixtapes Presents: Santa Fe Sampler. A micro mixtape to help you discover and support your favorite local musicians.">
-            <button class="welcome-start-button" id="welcome-start-button" type="button">Start listening</button>
+            <button class="welcome-start-button" id="welcome-start-button" type="button" aria-label="Play sampler"><svg class="welcome-play-icon" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#ffffff" aria-hidden="true" focusable="false"><g><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-821.000000, -378.000000)"><g transform="translate(819.000000, 376.000000)"><circle stroke="#ff9500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" cx="12" cy="12" r="9"></circle><path d="M9.99806947,8.42746827 L15.4902873,11.5658784 C15.730046,11.7028834 15.8133443,12.0083107 15.6763394,12.2480695 C15.6320447,12.3255851 15.5678029,12.3898269 15.4902873,12.4341216 L9.99806947,15.5725317 C9.75831075,15.7095367 9.45288341,15.6262384 9.31587843,15.3864796 C9.27270766,15.3109308 9.25,15.2254236 9.25,15.1384102 L9.25,8.86158984 C9.25,8.58544746 9.47385763,8.36158984 9.75,8.36158984 C9.83701347,8.36158984 9.92252062,8.3842975 9.99806947,8.42746827 Z" fill="#ff9500"></path></g></g></g></g></svg></button>
         </div>
     </div>
 
-    <div class="update-banner">✨ Memory & Mixtapes ✨ <a href="#credits" class="credits-info-link" id="credits-open" aria-label="Credits" aria-haspopup="dialog"><svg class="credits-info-icon" fill="#ffffff" version="1.1" id="credits-info-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 416.979 416.979" aria-hidden="true" focusable="false"><g><path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85 c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786 c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576 c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765 c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"></path></g></svg></a></div>
+    <a href="#credits" class="update-banner" id="credits-open" aria-label="Credits" aria-haspopup="dialog">✨ Memory & Mixtapes ✨ <span class="credits-info-link" aria-hidden="true"><svg class="credits-info-icon" fill="#ffffff" version="1.1" id="credits-info-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 416.979 416.979" aria-hidden="true" focusable="false"><g><path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85 c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786 c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576 c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765 c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"></path></g></svg></span></a>
 
     <div id="hero-image-container">
         <div id="hero-bg" aria-hidden="true"></div>
@@ -1302,7 +1419,12 @@
 
 
         async function startIntroPlayback() {
-            welcomeOverlay.classList.add('is-hidden');
+            if (
+                welcomeOverlay.classList.contains('is-hidden') ||
+                welcomeOverlay.classList.contains('is-exiting')
+            ) return;
+
+            welcomeOverlay.classList.add('is-exiting');
             audio.currentTime = metadata[0].start;
             isStarted = true;
             handleMetadataTransition(metadata[0]);
@@ -1316,9 +1438,18 @@
                 playBtn.style.color = "var(--accent)";
                 console.warn("Playback was blocked or failed:", error);
             }
+
+            window.setTimeout(() => {
+                welcomeOverlay.classList.add('is-hidden');
+                welcomeOverlay.classList.remove('is-exiting');
+            }, 560);
         }
 
-        welcomeStartButton.addEventListener('click', startIntroPlayback);
+        welcomeOverlay.addEventListener('click', startIntroPlayback);
+        welcomeStartButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            startIntroPlayback();
+        });
 
         function openCredits(event) {
             if (event) event.preventDefault();
