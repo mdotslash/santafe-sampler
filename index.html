@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Santa Fe Bandcamp Best Of — Local Hero Mix</title>
+    <style>
+        :root { 
+            --bg: #000000; 
+            --text: #ffffff; 
+            --accent: #ff9500; 
+            --panel: #0a0a0a; 
+            --border: #1a1a1a;
+            --hero-bg-image: none;
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex; 
+            flex-direction: column; 
+            height: 100dvh;
+            margin: 0;
+            padding: 12px 12px env(safe-area-inset-bottom) 12px;
+            box-sizing: border-box;
+            overflow: hidden;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .update-banner {
+            font-size: 0.65rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #111;
+            padding-bottom: 4px;
+        }
+
+        #hero-image-container {
+            width: 100%;
+            flex: 0 1 42vh;
+            min-height: 220px;
+            background: radial-gradient(circle at center, #171717 0%, #000 72%);
+            border-radius: 16px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            isolation: isolate;
+            padding: 10px;
+            box-sizing: border-box;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+        }
+
+        #hero-bg {
+            position: absolute;
+            inset: -28px;
+            background-image: var(--hero-bg-image);
+            background-size: cover;
+            background-position: center;
+            filter: blur(26px) saturate(1.18);
+            opacity: 0.38;
+            transform: scale(1.08);
+            z-index: -1;
+        }
+
+        #hero-image-container::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                180deg,
+                rgba(255,255,255,0.07),
+                rgba(255,255,255,0.00) 34%,
+                rgba(0,0,0,0.18)
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #hero-image-container img {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+            position: relative;
+            z-index: 1;
+        }
+
+        #speaker-grill { 
+            flex: 1 1 auto; 
+            background: var(--panel); 
+            border-radius: 8px; 
+            padding: 16px; 
+            border: 1px solid var(--border); 
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; 
+            scrollbar-width: thin; 
+            margin-bottom: 12px;
+        }
+
+        #speaker-grill::-webkit-scrollbar { width: 4px; }
+        #speaker-grill::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        .meta-content-wrapper { transition: opacity 0.4s ease-in-out; }
+        .meta-content-wrapper.fading { opacity: 0; }
+
+        .meta-event { 
+            color: var(--accent); 
+            font-weight: 700; 
+            font-size: 0.7rem; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            transition: opacity 0.4s;
+        }
+
+        .meta-title { 
+            font-size: clamp(1.2rem, 7vw, 1.8rem); 
+            margin-bottom: 8px; 
+            color: #fff; 
+            font-weight: 500; 
+            line-height: 1.1;
+        }
+
+        .updated-track { color: #fff !important; text-shadow: 0 0 12px rgba(46, 204, 113, 0.5); }
+
+        .meta-context { display: none; }
+
+
+
+        .progress-container {
+            width: 100%;
+            height: 6px; 
+            background: #1a1a1a;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        #progress-bar { width: 0%; height: 100%; background: var(--accent); }
+        
+        .time-display {
+            display: flex; 
+            font-size: 0.75rem; 
+            color: #666; 
+            margin-bottom: 8px; 
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .controls { display: flex; gap: 10px; height: 54px; }
+        button { 
+            background: #111; 
+            color: white; 
+            border: 1px solid #333; 
+            border-radius: 12px; 
+            font-size: 1.3rem; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1; 
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        #play-btn { flex: 2; font-size: 1rem; font-weight: 900; color: var(--accent); }
+
+
+        .detail-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .detail-line {
+            font-size: 0.9rem;
+            color: #d2d2d2;
+            line-height: 1.35;
+        }
+
+        .detail-line.artist-detail {
+            display: grid;
+            gap: 4px;
+        }
+
+        .detail-label {
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.62rem;
+            margin-right: 8px;
+        }
+
+        .detail-line.artist-detail .detail-label {
+            display: block;
+            margin-right: 0;
+        }
+
+        .artist-name {
+            display: block;
+            color: #f2f2f2;
+            font-size: clamp(1.05rem, 6.5vw, 1.35rem);
+            font-weight: 400;
+            line-height: 1.12;
+        }
+
+        .album-name {
+            color: #d2d2d2;
+            font-weight: 400;
+        }
+
+
+
+        .footer-ui {
+            flex-shrink: 0;
+            padding-bottom: 4px;
+        }
+
+        .footer-ctas {
+            display: grid;
+            justify-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-top: 2px;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 0 16px;
+            max-width: 260px;
+            width: min(100%, 260px);
+            margin-bottom: 8px;
+        }
+
+        .cta-button:active {
+            background: rgba(255, 149, 0, 0.12);
+        }
+
+        .archive-link {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            font-size: 0.76rem;
+            line-height: 1.3;
+            text-align: center;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .archive-link:active {
+            opacity: 0.72;
+        }
+
+
+
+        #hero-img {
+            transition: opacity 0.45s ease, transform 0.45s ease;
+        }
+
+        #hero-img.is-changing {
+            opacity: 0.25;
+            transform: scale(0.985);
+        }
+
+
+        .credits-info-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            margin-left: 5px;
+            color: #fff;
+            text-decoration: none;
+            vertical-align: -2px;
+            opacity: 0.75;
+        }
+
+        .credits-info-link:active {
+            opacity: 1;
+        }
+
+        .credits-info-icon {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .welcome-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: grid;
+            place-items: center;
+            background: rgba(0, 0, 0, 0.94);
+            padding: 18px;
+            box-sizing: border-box;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+
+        .welcome-overlay.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .welcome-card {
+            width: min(100%, 520px);
+            display: grid;
+            gap: 14px;
+        }
+
+        .welcome-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .welcome-start-button {
+            min-height: 44px;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .welcome-start-button:active {
+            background: rgba(255, 149, 0, 0.12);
+        }
+
+
+        .credits-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            display: grid;
+            place-items: center;
+            background: rgba(0, 0, 0, 0.82);
+            padding: 18px;
+            box-sizing: border-box;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.24s ease, visibility 0.24s ease;
+        }
+
+        .credits-modal.is-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .credits-modal-card {
+            width: min(100%, 560px);
+            max-height: min(82dvh, 720px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #050505;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+        }
+
+        .credits-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .credits-modal-title {
+            font-size: clamp(1.8rem, 10vw, 3.5rem);
+            line-height: 0.95;
+            letter-spacing: -0.06em;
+            margin: 0;
+        }
+
+        .credits-close {
+            flex: 0 0 auto;
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid #333;
+            background: #111;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .credits-modal section {
+            border-top: 1px solid var(--border);
+            padding: 18px 0;
+        }
+
+        .credits-modal h2 {
+            color: var(--accent);
+            font-size: 0.72rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin: 0 0 10px 0;
+        }
+
+        .credits-modal p {
+            color: #b8b8b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .credits-modal strong {
+            color: #fff;
+        }
+
+        .credits-modal a {
+            color: #fff;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .credits-modal .artists {
+            color: #d8d8d8;
+        }
+
+        .credits-modal .sad {
+            opacity: 0.85;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="welcome-overlay" id="welcome-overlay" role="dialog" aria-modal="true" aria-label="Santa Fe Sampler introduction">
+        <div class="welcome-card">
+            <img src="welcome.png" alt="Memory & Mixtapes Presents: Santa Fe Sampler. A micro mixtape to help you discover and support your favorite local musicians.">
+            <button class="welcome-start-button" id="welcome-start-button" type="button">Start listening</button>
+        </div>
+    </div>
+
+    <div class="update-banner">✨ Memory & Mixtapes ✨ <a href="#credits" class="credits-info-link" id="credits-open" aria-label="Credits" aria-haspopup="dialog"><svg class="credits-info-icon" fill="#ffffff" version="1.1" id="credits-info-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 416.979 416.979" aria-hidden="true" focusable="false"><g><path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85 c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786 c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576 c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765 c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"></path></g></svg></a></div>
+
+    <div id="hero-image-container">
+        <div id="hero-bg" aria-hidden="true"></div>
+        <img src="bg-image.png" alt="Santa Fe Bandcamp Best Of" id="hero-img">
+    </div>
+
+    <div id="speaker-grill">
+        <div class="meta-event" id="ui-event">Santa Fe Local Heroes x BandCamp</div>
+        
+        <div id="meta-content-wrapper" class="meta-content-wrapper">
+            <div class="meta-title" id="ui-title">Float Away (Acts 1-4)</div>
+            <div class="meta-context" id="ui-context">
+                A 24-track sampler of Santa Fe Artists on Bandcamp.
+            </div>
+
+
+            <div class="detail-grid">
+                <div class="detail-line artist-detail">
+                    <span class="detail-label">Artist</span>
+                    <span class="artist-name" id="ui-artist">—</span>
+                </div>
+                <div class="detail-line album-detail">
+                    <!-- <span class="detail-label">Album</span> -->
+                    <span class="album-name" id="ui-album">—</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer-ui">
+        <div class="footer-ctas" aria-label="Bandcamp links">
+            <a href="https://bandcamp.com/discover?loc=5490263" target="_blank" class="cta-button" id="ui-buy-link">Support on Bandcamp</a>
+            <div><a href="https://bandcamp.com/discover?loc=5490263" target="_blank" class="archive-link" id="ui-discover-link">
+                Discover 2,200+ releases from Santa Fe artists
+            </a>
+            </div>
+        </div>
+
+        <div class="time-display">
+            <span id="time-current">0:00</span>&nbsp;/&nbsp;<span id="time-segment-duration">0:10</span>
+        </div>
+        
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="handleBack()">⏮️</button>
+            <button id="play-btn" onclick="togglePlay()">PLAY</button>
+            <button onclick="handleForward()">⏭️</button>
+        </div>
+    </div>
+
+    <div class="credits-modal" id="credits-modal" role="dialog" aria-modal="true" aria-labelledby="credits-title" aria-hidden="true">
+        <div class="credits-modal-card" role="document">
+            <div class="credits-modal-header">
+                <h1 class="credits-modal-title" id="credits-title">Credits</h1>
+                <button class="credits-close" id="credits-close" type="button" aria-label="Close credits">×</button>
+            </div>
+
+            <section>
+                <p><strong>Mixtapes &amp; Memory</strong> are a radical cultural research and media collective dedicated to celebrating the histories, culture and stories of communities through archiving tech.</p>
+            </section>
+
+            <section>
+                <h2>Music Credits</h2>
+                <p class="artists">Thank you to Headnodic &amp; Raashan Ahmad / Raashan Ahmad, Nohe &amp; Sus Santos, Jesus Bas, StarBird Inès, Rumelia Collective, VoxLox, Tara Andrea &amp; Maboud, Catherine Sikora, Roʊˈz / MVP Mikey, doseone, Old Man Gloom, Blood Sucking Maniacs / Terry Allen, Esther Rose, Jono Manson &amp; James Raymond / James Raymond, theo krantz / CRY LIKE DONNA, Ken Prokuski, Triturate, Kipp Bentley, Elizabeth Lockhart, The Underground Correspondents, ZULEIKHA, Ty Cooper, Ottmar Liebert, Aceyalone &amp; Mumbles / Mumbles.</p>
+            </section>
+
+            <section>
+                <h2>Site Credits</h2>
+                <p>Created by <a href="https://www.mayowatomori.com" target="_blank" rel="noopener">Mayowa Tomori</a> using environmentally-destructive AI <span class="sad">😔</span>.</p>
+                <p style="margin-top: 12px;">Send me a note if you’d like to collaborate on anything. <a href="mailto:hi@mayowatomori.com">hi@mayowatomori.com</a></p>
+            </section>
+        </div>
+    </div>
+
+    <audio id="audio-player" preload="metadata">
+        <source src="BANDCAMP_BEST_OF_SNIPPET_MIX.webm" type="audio/webm">
+        <source src="BANDCAMP_BEST_OF_SNIPPET_MIX.mp3" type="audio/mpeg">
+        <source src="BANDCAMP_BEST_OF_SNIPPET_MIX.wav" type="audio/wav">
+        <source src="audio.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('play-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const contentWrapper = document.getElementById('meta-content-wrapper');
+        const eventTag = document.getElementById('ui-event');
+        const timeCurrent = document.getElementById('time-current');
+        const timeDurationLabel = document.getElementById('time-segment-duration');
+        const heroImg = document.getElementById('hero-img');
+        const artistEl = document.getElementById('ui-artist');
+        const albumEl = document.getElementById('ui-album');
+        const buyLinkEl = document.getElementById('ui-buy-link');
+        const welcomeOverlay = document.getElementById('welcome-overlay');
+        const welcomeStartButton = document.getElementById('welcome-start-button');
+        const creditsOpen = document.getElementById('credits-open');
+        const creditsModal = document.getElementById('credits-modal');
+        const creditsClose = document.getElementById('credits-close');
+
+        const DEFAULT_HERO_IMAGE = "bg-image.png";
+
+        let isStarted = false;
+        let currentTitle = "";
+        let currentEvent = "";
+
+        const metadata = [
+            {
+                        "start": 0,
+                        "duration": 10,
+                        "event": "funk",
+                        "title": "Float Away (Acts 1-4)",
+                        "context": "Headnodic & Raashan Ahmad / Raashan Ahmad — Low Fidelity, High Quality (Vol.2). Genres: funk.",
+                        "artist": "Headnodic & Raashan Ahmad / Raashan Ahmad",
+                        "album": "Low Fidelity, High Quality (Vol.2)",
+                        "trackTitle": "Float Away (Acts 1-4)",
+                        "genre": "funk",
+                        "genres": [
+                                    "funk"
+                        ],
+                        "genresLabel": "funk",
+                        "bandcampUrl": "https://raashanahmad.bandcamp.com/album/low-fidelity-high-quality-vol-2",
+                        "artistUrl": "https://raashanahmad.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1968235062_10.jpg",
+                        "imageUrl": "album-art/01-headnodic-raashan-ahmad-raashan-ahm-low-fidelity-high-quality-vol-2.jpg",
+                        "localImageUrl": "album-art/01-headnodic-raashan-ahmad-raashan-ahm-low-fidelity-high-quality-vol-2.jpg",
+                        "rank": 1,
+                        "positionLabel": "1 of 24",
+                        "fullTrackDuration": 453.565,
+                        "fullTrackDurationLabel": "7:34",
+                        "curatorNote": "Anchor pick for the mix, foregrounding funk and hip-hop lineage in the Santa Fe Bandcamp landscape.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/raashan-ahmad-float-away-preview.mp3",
+                        "priorityPick": true
+            },
+            {
+                        "start": 10,
+                        "duration": 10,
+                        "event": "latin",
+                        "title": "Sirenita",
+                        "context": "Nohe & Sus Santos — Tempestad. Genres: latin.",
+                        "artist": "Nohe & Sus Santos",
+                        "album": "Tempestad",
+                        "trackTitle": "Sirenita",
+                        "genre": "latin",
+                        "genres": [
+                                    "latin"
+                        ],
+                        "genresLabel": "latin",
+                        "bandcampUrl": "https://noheysussantos.bandcamp.com/album/tempestad",
+                        "artistUrl": "https://noheysussantos.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a3934667748_10.jpg",
+                        "imageUrl": "album-art/02-nohe-sus-santos-tempestad.jpg",
+                        "localImageUrl": "album-art/02-nohe-sus-santos-tempestad.jpg",
+                        "rank": 2,
+                        "positionLabel": "2 of 24",
+                        "fullTrackDuration": 195.035,
+                        "fullTrackDurationLabel": "3:15",
+                        "curatorNote": "Priority pick added to broaden the mix across Latin, world, jazz, folk, and diasporic musical traditions.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/02-nohe-sus-santos-sirenita.mp3",
+                        "priorityPick": true
+            },
+            {
+                        "start": 20,
+                        "duration": 10,
+                        "event": "acoustic / latin",
+                        "title": "Almas Gemelas",
+                        "context": "Jesus Bas — \"Natural\". Genres: acoustic / latin.",
+                        "artist": "Jesus Bas",
+                        "album": "\"Natural\"",
+                        "trackTitle": "Almas Gemelas",
+                        "genre": "acoustic",
+                        "genres": [
+                                    "acoustic",
+                                    "latin"
+                        ],
+                        "genresLabel": "acoustic / latin",
+                        "bandcampUrl": "https://jesusbas.com/album/natural",
+                        "artistUrl": "https://jesusbas.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a3048545169_10.jpg",
+                        "imageUrl": "album-art/03-jesus-bas-natural.jpg",
+                        "localImageUrl": "album-art/03-jesus-bas-natural.jpg",
+                        "rank": 3,
+                        "positionLabel": "3 of 24",
+                        "fullTrackDuration": 222.187,
+                        "fullTrackDurationLabel": "3:42",
+                        "curatorNote": "Priority pick added to broaden the mix across Latin, world, jazz, folk, and diasporic musical traditions.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/03-jesus-bas-almas-gemelas.mp3",
+                        "priorityPick": true
+            },
+            {
+                        "start": 30,
+                        "duration": 10,
+                        "event": "world",
+                        "title": "Working Us In Light",
+                        "context": "StarBird Inès — Plantas En Nosotros. Genres: world.",
+                        "artist": "StarBird Inès",
+                        "album": "Plantas En Nosotros",
+                        "trackTitle": "Working Us In Light",
+                        "genre": "world",
+                        "genres": [
+                                    "world"
+                        ],
+                        "genresLabel": "world",
+                        "bandcampUrl": "https://starbirdines.bandcamp.com/album/plantas-en-nosotros",
+                        "artistUrl": "https://starbirdines.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a571251829_10.jpg",
+                        "imageUrl": "album-art/04-starbird-in-s-plantas-en-nosotros.jpg",
+                        "localImageUrl": "album-art/04-starbird-in-s-plantas-en-nosotros.jpg",
+                        "rank": 4,
+                        "positionLabel": "4 of 24",
+                        "fullTrackDuration": 310.0,
+                        "fullTrackDurationLabel": "5:10",
+                        "curatorNote": "Priority pick added to broaden the mix across Latin, world, jazz, folk, and diasporic musical traditions.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/04-starbird-in-s-working-us-in-light.mp3",
+                        "priorityPick": true
+            },
+            {
+                        "start": 40,
+                        "duration": 10,
+                        "event": "folk / world",
+                        "title": "Szerelem, Szerelem",
+                        "context": "Rumelia Collective — Beneath Roses. Genres: folk / world.",
+                        "artist": "Rumelia Collective",
+                        "album": "Beneath Roses",
+                        "trackTitle": "Szerelem, Szerelem",
+                        "genre": "folk",
+                        "genres": [
+                                    "folk",
+                                    "world"
+                        ],
+                        "genresLabel": "folk / world",
+                        "bandcampUrl": "https://rumeliacollective.bandcamp.com/album/beneath-roses",
+                        "artistUrl": "https://rumeliacollective.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a3486149510_10.jpg",
+                        "imageUrl": "album-art/05-rumelia-collective-beneath-roses.jpg",
+                        "localImageUrl": "album-art/05-rumelia-collective-beneath-roses.jpg",
+                        "rank": 5,
+                        "positionLabel": "5 of 24",
+                        "fullTrackDuration": 207.019,
+                        "fullTrackDurationLabel": "3:27",
+                        "curatorNote": "Priority pick added to broaden the mix across Latin, world, jazz, folk, and diasporic musical traditions.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/05-rumelia-collective-szerelem-szerelem.mp3",
+                        "priorityPick": true
+            },
+            {
+                        "start": 50,
+                        "duration": 10,
+                        "event": "ambient / world / jazz",
+                        "title": "Acknowledgement",
+                        "context": "VoxLox — Jazz Cosmopolitanism In Accra. Genres: ambient / world / jazz.",
+                        "artist": "VoxLox",
+                        "album": "Jazz Cosmopolitanism In Accra",
+                        "trackTitle": "Acknowledgement",
+                        "genre": "ambient",
+                        "genres": [
+                                    "ambient",
+                                    "world",
+                                    "jazz"
+                        ],
+                        "genresLabel": "ambient / world / jazz",
+                        "bandcampUrl": "https://voxlox.bandcamp.com/album/jazz-cosmopolitanism-in-accra",
+                        "artistUrl": "https://voxlox.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a2610809157_10.jpg",
+                        "imageUrl": "album-art/06-voxlox-jazz-cosmopolitanism-in-accra.jpg",
+                        "localImageUrl": "album-art/06-voxlox-jazz-cosmopolitanism-in-accra.jpg",
+                        "rank": 6,
+                        "positionLabel": "6 of 24",
+                        "fullTrackDuration": 239.12,
+                        "fullTrackDurationLabel": "3:59",
+                        "curatorNote": "Priority pick added to broaden the mix across Latin, world, jazz, folk, and diasporic musical traditions.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/06-voxlox-acknowledgement.mp3",
+                        "priorityPick": true
+            },
+            {
+                        "start": 60,
+                        "duration": 10,
+                        "event": "devotional",
+                        "title": "BEGGAR'S BISMILLAH",
+                        "context": "Tara Andrea & Maboud — UNIVERSAL PEACE & THE GROUND OF BEING. Genres: devotional.",
+                        "artist": "Tara Andrea & Maboud",
+                        "album": "UNIVERSAL PEACE & THE GROUND OF BEING",
+                        "trackTitle": "BEGGAR'S BISMILLAH",
+                        "genre": "devotional",
+                        "genres": [
+                                    "devotional"
+                        ],
+                        "genresLabel": "devotional",
+                        "bandcampUrl": "https://taraandreamaboud.bandcamp.com/album/universal-peace-the-ground-of-being",
+                        "artistUrl": "https://taraandreamaboud.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a3064036520_10.jpg",
+                        "imageUrl": "album-art/07-tara-andrea-maboud-universal-peace-the-ground-of-being.jpg",
+                        "localImageUrl": "album-art/07-tara-andrea-maboud-universal-peace-the-ground-of-being.jpg",
+                        "rank": 7,
+                        "positionLabel": "7 of 24",
+                        "fullTrackDuration": 812.833,
+                        "fullTrackDurationLabel": "13:33",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/07-tara-andrea-maboud-beggars-bismillah.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 70,
+                        "duration": 10,
+                        "event": "jazz",
+                        "title": "awareness",
+                        "context": "Catherine Sikora — repose in the nothing. Genres: jazz.",
+                        "artist": "Catherine Sikora",
+                        "album": "repose in the nothing",
+                        "trackTitle": "awareness",
+                        "genre": "jazz",
+                        "genres": [
+                                    "jazz"
+                        ],
+                        "genresLabel": "jazz",
+                        "bandcampUrl": "https://catherinesikora.bandcamp.com/album/repose-in-the-nothing",
+                        "artistUrl": "https://catherinesikora.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a2194834301_10.jpg",
+                        "imageUrl": "album-art/08-catherine-sikora-repose-in-the-nothing.jpg",
+                        "localImageUrl": "album-art/08-catherine-sikora-repose-in-the-nothing.jpg",
+                        "rank": 8,
+                        "positionLabel": "8 of 24",
+                        "fullTrackDuration": 330.625,
+                        "fullTrackDurationLabel": "5:31",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/08-catherine-sikora-awareness.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 80,
+                        "duration": 10,
+                        "event": "r-b-soul",
+                        "title": "RiGhT NoW",
+                        "context": "Roʊˈz / MVP Mikey — hOw YoU fEeL nOw ?!. Genres: r-b-soul.",
+                        "artist": "Roʊˈz / MVP Mikey",
+                        "album": "hOw YoU fEeL nOw ?!",
+                        "trackTitle": "RiGhT NoW",
+                        "genre": "r-b-soul",
+                        "genres": [
+                                    "r-b-soul"
+                        ],
+                        "genresLabel": "r-b-soul",
+                        "bandcampUrl": "https://mvpmikey.bandcamp.com/album/how-you-feel-now",
+                        "artistUrl": "https://mvpmikey.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a3607155350_10.jpg",
+                        "imageUrl": "album-art/09-ro-z-mvp-mikey-how-you-feel-now.jpg",
+                        "localImageUrl": "album-art/09-ro-z-mvp-mikey-how-you-feel-now.jpg",
+                        "rank": 9,
+                        "positionLabel": "9 of 24",
+                        "fullTrackDuration": 129.785,
+                        "fullTrackDurationLabel": "2:10",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/09-ro-z-mvp-mikey-right-now.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 90,
+                        "duration": 10,
+                        "event": "hip-hop-rap",
+                        "title": "Mr. Run",
+                        "context": "doseone — G is for JOB. Genres: hip-hop-rap.",
+                        "artist": "doseone",
+                        "album": "G is for JOB",
+                        "trackTitle": "Mr. Run",
+                        "genre": "hip-hop-rap",
+                        "genres": [
+                                    "hip-hop-rap"
+                        ],
+                        "genresLabel": "hip-hop-rap",
+                        "bandcampUrl": "https://doseone.bandcamp.com/album/g-is-for-job",
+                        "artistUrl": "https://doseone.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1945145645_10.jpg",
+                        "imageUrl": "album-art/10-doseone-g-is-for-job.jpg",
+                        "localImageUrl": "album-art/10-doseone-g-is-for-job.jpg",
+                        "rank": 10,
+                        "positionLabel": "10 of 24",
+                        "fullTrackDuration": 204.249,
+                        "fullTrackDurationLabel": "3:24",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/10-doseone-mr-run.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 100,
+                        "duration": 10,
+                        "event": "metal",
+                        "title": "Eden's Gates",
+                        "context": "Old Man Gloom — The Ape Of God. Genres: metal.",
+                        "artist": "Old Man Gloom",
+                        "album": "The Ape Of God",
+                        "trackTitle": "Eden's Gates",
+                        "genre": "metal",
+                        "genres": [
+                                    "metal"
+                        ],
+                        "genresLabel": "metal",
+                        "bandcampUrl": "https://oldmangloom.bandcamp.com/album/the-ape-of-god-2",
+                        "artistUrl": "https://oldmangloom.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a734828377_10.jpg",
+                        "imageUrl": "album-art/11-old-man-gloom-the-ape-of-god.jpg",
+                        "localImageUrl": "album-art/11-old-man-gloom-the-ape-of-god.jpg",
+                        "rank": 11,
+                        "positionLabel": "11 of 24",
+                        "fullTrackDuration": 391.41,
+                        "fullTrackDurationLabel": "6:31",
+                        "curatorNote": "A high-ranking local/heavy Bandcamp discovery, included as part of the full scene snapshot.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/11-old-man-gloom-edens-gates.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 110,
+                        "duration": 10,
+                        "event": "alternative / folk / country",
+                        "title": "Heartbeat (Lucky Marlo Allen) / Barrelhouse (Pauline Allen)",
+                        "context": "Blood Sucking Maniacs / Terry Allen — Blood Sucking Maniacs. Genres: alternative / folk / country.",
+                        "artist": "Blood Sucking Maniacs / Terry Allen",
+                        "album": "Blood Sucking Maniacs",
+                        "trackTitle": "Heartbeat (Lucky Marlo Allen) / Barrelhouse (Pauline Allen)",
+                        "genre": "alternative",
+                        "genres": [
+                                    "alternative",
+                                    "folk",
+                                    "country"
+                        ],
+                        "genresLabel": "alternative / folk / country",
+                        "bandcampUrl": "https://terryallen.bandcamp.com/album/blood-sucking-maniacs",
+                        "artistUrl": "https://terryallen.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a791008359_10.jpg",
+                        "imageUrl": "album-art/12-blood-sucking-maniacs-terry-allen-blood-sucking-maniacs.jpg",
+                        "localImageUrl": "album-art/12-blood-sucking-maniacs-terry-allen-blood-sucking-maniacs.jpg",
+                        "rank": 12,
+                        "positionLabel": "12 of 24",
+                        "fullTrackDuration": 40.8665,
+                        "fullTrackDurationLabel": "0:41",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/12-blood-sucking-maniacs-terry-allen-heartbeat-lucky-marlo-allen-barrelhouse-pauline-allen.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 120,
+                        "duration": 10,
+                        "event": "rock / folk / country",
+                        "title": "Chet Baker (feat. Bella White)",
+                        "context": "Esther Rose — Safe 2 Run (versions). Genres: rock / folk / country.",
+                        "artist": "Esther Rose",
+                        "album": "Safe 2 Run (versions)",
+                        "trackTitle": "Chet Baker (feat. Bella White)",
+                        "genre": "rock",
+                        "genres": [
+                                    "rock",
+                                    "folk",
+                                    "country"
+                        ],
+                        "genresLabel": "rock / folk / country",
+                        "bandcampUrl": "https://estherrosemusic.bandcamp.com/album/safe-2-run-versions",
+                        "artistUrl": "https://estherrosemusic.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a444124506_10.jpg",
+                        "imageUrl": "album-art/13-esther-rose-safe-2-run-versions.jpg",
+                        "localImageUrl": "album-art/13-esther-rose-safe-2-run-versions.jpg",
+                        "rank": 13,
+                        "positionLabel": "13 of 24",
+                        "fullTrackDuration": 221.681,
+                        "fullTrackDurationLabel": "3:42",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/13-esther-rose-chet-baker-feat-bella-white.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 130,
+                        "duration": 10,
+                        "event": "electronic / rock / folk / ambient / jazz",
+                        "title": "Calling You Home",
+                        "context": "Jono Manson & James Raymond / James Raymond — Playing Day For Night. Genres: electronic / rock / folk / ambient / jazz.",
+                        "artist": "Jono Manson & James Raymond / James Raymond",
+                        "album": "Playing Day For Night",
+                        "trackTitle": "Calling You Home",
+                        "genre": "electronic",
+                        "genres": [
+                                    "electronic",
+                                    "rock",
+                                    "folk",
+                                    "ambient",
+                                    "jazz"
+                        ],
+                        "genresLabel": "electronic / rock / folk / ambient / jazz",
+                        "bandcampUrl": "https://jamesraymond.bandcamp.com/album/playing-day-for-night",
+                        "artistUrl": "https://jamesraymond.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a2407654209_10.jpg",
+                        "imageUrl": "album-art/14-jono-manson-james-raymond-james-ray-playing-day-for-night.jpg",
+                        "localImageUrl": "album-art/14-jono-manson-james-raymond-james-ray-playing-day-for-night.jpg",
+                        "rank": 14,
+                        "positionLabel": "14 of 24",
+                        "fullTrackDuration": 250.813,
+                        "fullTrackDurationLabel": "4:11",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/14-jono-manson-james-raymond-james-raymond-calling-you-home.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 140,
+                        "duration": 10,
+                        "event": "pop / soundtrack",
+                        "title": "start up (episode 2)",
+                        "context": "theo krantz / CRY LIKE DONNA — spare parts OST vol. 1. Genres: pop / soundtrack.",
+                        "artist": "theo krantz / CRY LIKE DONNA",
+                        "album": "spare parts OST vol. 1",
+                        "trackTitle": "start up (episode 2)",
+                        "genre": "pop",
+                        "genres": [
+                                    "pop",
+                                    "soundtrack"
+                        ],
+                        "genresLabel": "pop / soundtrack",
+                        "bandcampUrl": "https://crylikedonna.bandcamp.com/album/spare-parts-ost-vol-1",
+                        "artistUrl": "https://crylikedonna.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1212449515_10.jpg",
+                        "imageUrl": "album-art/15-theo-krantz-cry-like-donna-spare-parts-ost-vol-1.jpg",
+                        "localImageUrl": "album-art/15-theo-krantz-cry-like-donna-spare-parts-ost-vol-1.jpg",
+                        "rank": 15,
+                        "positionLabel": "15 of 24",
+                        "fullTrackDuration": 5.99202,
+                        "fullTrackDurationLabel": "0:06",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/15-theo-krantz-cry-like-donna-start-up-episode-2.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 150,
+                        "duration": 10,
+                        "event": "experimental",
+                        "title": "River Talk",
+                        "context": "Ken Prokuski — Pyrenees Spring Volume 1. Genres: experimental.",
+                        "artist": "Ken Prokuski",
+                        "album": "Pyrenees Spring Volume 1",
+                        "trackTitle": "River Talk",
+                        "genre": "experimental",
+                        "genres": [
+                                    "experimental"
+                        ],
+                        "genresLabel": "experimental",
+                        "bandcampUrl": "https://kenprokuski.bandcamp.com/album/pyrenees-spring-volume-1",
+                        "artistUrl": "https://kenprokuski.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1136787616_10.jpg",
+                        "imageUrl": "album-art/16-ken-prokuski-pyrenees-spring-volume-1.jpg",
+                        "localImageUrl": "album-art/16-ken-prokuski-pyrenees-spring-volume-1.jpg",
+                        "rank": 16,
+                        "positionLabel": "16 of 24",
+                        "fullTrackDuration": 526.0,
+                        "fullTrackDurationLabel": "8:46",
+                        "curatorNote": "A left-field selection that points to Santa Fe’s experimental and sound-art edge.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/16-ken-prokuski-river-talk.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 160,
+                        "duration": 10,
+                        "event": "punk",
+                        "title": "Mystical Whip",
+                        "context": "Triturate — Wealth Builder (demo). Genres: punk.",
+                        "artist": "Triturate",
+                        "album": "Wealth Builder (demo)",
+                        "trackTitle": "Mystical Whip",
+                        "genre": "punk",
+                        "genres": [
+                                    "punk"
+                        ],
+                        "genresLabel": "punk",
+                        "bandcampUrl": "https://trituratetriturate.bandcamp.com/album/wealth-builder-demo",
+                        "artistUrl": "https://trituratetriturate.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1048248255_10.jpg",
+                        "imageUrl": "album-art/17-triturate-wealth-builder-demo.jpg",
+                        "localImageUrl": "album-art/17-triturate-wealth-builder-demo.jpg",
+                        "rank": 17,
+                        "positionLabel": "17 of 24",
+                        "fullTrackDuration": 144.009,
+                        "fullTrackDurationLabel": "2:24",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/17-triturate-mystical-whip.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 170,
+                        "duration": 10,
+                        "event": "country",
+                        "title": "Quiet Out Here",
+                        "context": "Kipp Bentley — Night Letter. Genres: country.",
+                        "artist": "Kipp Bentley",
+                        "album": "Night Letter",
+                        "trackTitle": "Quiet Out Here",
+                        "genre": "country",
+                        "genres": [
+                                    "country"
+                        ],
+                        "genresLabel": "country",
+                        "bandcampUrl": "https://kippbentley.bandcamp.com/album/night-letter",
+                        "artistUrl": "https://kippbentley.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1715518636_10.jpg",
+                        "imageUrl": "album-art/18-kipp-bentley-night-letter.jpg",
+                        "localImageUrl": "album-art/18-kipp-bentley-night-letter.jpg",
+                        "rank": 18,
+                        "positionLabel": "18 of 24",
+                        "fullTrackDuration": 276.588,
+                        "fullTrackDurationLabel": "4:37",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/18-kipp-bentley-quiet-out-here.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 180,
+                        "duration": 10,
+                        "event": "classical",
+                        "title": "Lifer",
+                        "context": "Elizabeth Lockhart — Master Key. Genres: classical.",
+                        "artist": "Elizabeth Lockhart",
+                        "album": "Master Key",
+                        "trackTitle": "Lifer",
+                        "genre": "classical",
+                        "genres": [
+                                    "classical"
+                        ],
+                        "genresLabel": "classical",
+                        "bandcampUrl": "https://elizabethlockhart.bandcamp.com/album/master-key",
+                        "artistUrl": "https://elizabethlockhart.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a287316361_10.jpg",
+                        "imageUrl": "album-art/19-elizabeth-lockhart-master-key.jpg",
+                        "localImageUrl": "album-art/19-elizabeth-lockhart-master-key.jpg",
+                        "rank": 19,
+                        "positionLabel": "19 of 24",
+                        "fullTrackDuration": 260.053,
+                        "fullTrackDurationLabel": "4:20",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/19-elizabeth-lockhart-lifer.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 190,
+                        "duration": 10,
+                        "event": "spoken-word",
+                        "title": "Broadcast from the Beyond",
+                        "context": "The Underground Correspondents — Social Static. Genres: spoken-word.",
+                        "artist": "The Underground Correspondents",
+                        "album": "Social Static",
+                        "trackTitle": "Broadcast from the Beyond",
+                        "genre": "spoken-word",
+                        "genres": [
+                                    "spoken-word"
+                        ],
+                        "genresLabel": "spoken-word",
+                        "bandcampUrl": "https://theundergroundcorrespondents.bandcamp.com/album/social-static",
+                        "artistUrl": "https://theundergroundcorrespondents.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a3298588591_10.jpg",
+                        "imageUrl": "album-art/20-the-underground-correspondents-social-static.jpg",
+                        "localImageUrl": "album-art/20-the-underground-correspondents-social-static.jpg",
+                        "rank": 20,
+                        "positionLabel": "20 of 24",
+                        "fullTrackDuration": 75.04,
+                        "fullTrackDurationLabel": "1:15",
+                        "curatorNote": "Selected from the Santa Fe Bandcamp discovery set as part of a varied local sampler.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/20-the-underground-correspondents-broadcast-from-the-beyond.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 200,
+                        "duration": 10,
+                        "event": "devotional",
+                        "title": "Swan Song",
+                        "context": "ZULEIKHA — Robe of Love. Genres: devotional.",
+                        "artist": "ZULEIKHA",
+                        "album": "Robe of Love",
+                        "trackTitle": "Swan Song",
+                        "genre": "devotional",
+                        "genres": [
+                                    "devotional"
+                        ],
+                        "genresLabel": "devotional",
+                        "bandcampUrl": "https://zuleikha.bandcamp.com/album/robe-of-love",
+                        "artistUrl": "https://zuleikha.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1660588864_10.jpg",
+                        "imageUrl": "album-art/21-zuleikha-robe-of-love.jpg",
+                        "localImageUrl": "album-art/21-zuleikha-robe-of-love.jpg",
+                        "rank": 21,
+                        "positionLabel": "21 of 24",
+                        "fullTrackDuration": 168.067,
+                        "fullTrackDurationLabel": "2:48",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/21-zuleikha-swan-song.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 210,
+                        "duration": 10,
+                        "event": "jazz",
+                        "title": "Lullaby of Birdland",
+                        "context": "Ty Cooper — Reflections. Genres: jazz.",
+                        "artist": "Ty Cooper",
+                        "album": "Reflections",
+                        "trackTitle": "Lullaby of Birdland",
+                        "genre": "jazz",
+                        "genres": [
+                                    "jazz"
+                        ],
+                        "genresLabel": "jazz",
+                        "bandcampUrl": "https://tycooper.bandcamp.com/album/reflections",
+                        "artistUrl": "https://tycooper.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a1136932484_10.jpg",
+                        "imageUrl": "album-art/22-ty-cooper-reflections.jpg",
+                        "localImageUrl": "album-art/22-ty-cooper-reflections.jpg",
+                        "rank": 22,
+                        "positionLabel": "22 of 24",
+                        "fullTrackDuration": 172.213,
+                        "fullTrackDurationLabel": "2:52",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/22-ty-cooper-lullaby-of-birdland.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 220,
+                        "duration": 10,
+                        "event": "world / acoustic",
+                        "title": "Raven Blue",
+                        "context": "Ottmar Liebert — Andante. Genres: world / acoustic.",
+                        "artist": "Ottmar Liebert",
+                        "album": "Andante",
+                        "trackTitle": "Raven Blue",
+                        "genre": "world",
+                        "genres": [
+                                    "world",
+                                    "acoustic"
+                        ],
+                        "genresLabel": "world / acoustic",
+                        "bandcampUrl": "https://ottmarliebert.bandcamp.com/album/andante",
+                        "artistUrl": "https://ottmarliebert.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a389700841_10.jpg",
+                        "imageUrl": "album-art/23-ottmar-liebert-andante.jpg",
+                        "localImageUrl": "album-art/23-ottmar-liebert-andante.jpg",
+                        "rank": 23,
+                        "positionLabel": "23 of 24",
+                        "fullTrackDuration": 177.102,
+                        "fullTrackDurationLabel": "2:57",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/23-ottmar-liebert-raven-blue.mp3",
+                        "priorityPick": false
+            },
+            {
+                        "start": 230,
+                        "duration": 10,
+                        "event": "hip-hop-rap",
+                        "title": "Courage Under Fire",
+                        "context": "Aceyalone & Mumbles / Mumbles — Courage Under Fire b/w Freedom Now. Genres: hip-hop-rap.",
+                        "artist": "Aceyalone & Mumbles / Mumbles",
+                        "album": "Courage Under Fire b/w Freedom Now",
+                        "trackTitle": "Courage Under Fire",
+                        "genre": "hip-hop-rap",
+                        "genres": [
+                                    "hip-hop-rap"
+                        ],
+                        "genresLabel": "hip-hop-rap",
+                        "bandcampUrl": "https://mumbles2.bandcamp.com/album/courage-under-fire-b-w-freedom-now",
+                        "artistUrl": "https://mumbles2.bandcamp.com",
+                        "remoteImageUrl": "https://f4.bcbits.com/img/a366156696_10.jpg",
+                        "imageUrl": "album-art/24-aceyalone-mumbles-mumbles-courage-under-fire-b-w-freedom-now.jpg",
+                        "localImageUrl": "album-art/24-aceyalone-mumbles-mumbles-courage-under-fire-b-w-freedom-now.jpg",
+                        "rank": 24,
+                        "positionLabel": "24 of 24",
+                        "fullTrackDuration": 273.867,
+                        "fullTrackDurationLabel": "4:34",
+                        "curatorNote": "Included to widen the discovery path beyond the rock/folk/metal-heavy Bandcamp ranking.",
+                        "ctaPrimary": "Buy / follow on Bandcamp",
+                        "source": "Bandcamp Discover: Santa Fe",
+                        "audioFile": "bandcamp_preview_mp3s/24-aceyalone-mumbles-mumbles-courage-under-fire.mp3",
+                        "priorityPick": false
+            }
+];
+
+
+        async function startIntroPlayback() {
+            welcomeOverlay.classList.add('is-hidden');
+            audio.currentTime = metadata[0].start;
+            isStarted = true;
+            handleMetadataTransition(metadata[0]);
+
+            try {
+                await audio.play();
+                playBtn.innerText = "PAUSE";
+                playBtn.style.color = "#fff";
+            } catch (error) {
+                playBtn.innerText = "PLAY";
+                playBtn.style.color = "var(--accent)";
+                console.warn("Playback was blocked or failed:", error);
+            }
+        }
+
+        welcomeStartButton.addEventListener('click', startIntroPlayback);
+
+        function openCredits(event) {
+            if (event) event.preventDefault();
+            creditsModal.classList.add('is-open');
+            creditsModal.setAttribute('aria-hidden', 'false');
+            creditsClose.focus();
+        }
+
+        function closeCredits() {
+            creditsModal.classList.remove('is-open');
+            creditsModal.setAttribute('aria-hidden', 'true');
+            if (creditsOpen) creditsOpen.focus();
+        }
+
+        creditsOpen.addEventListener('click', openCredits);
+        creditsClose.addEventListener('click', closeCredits);
+
+        creditsModal.addEventListener('click', (event) => {
+            if (event.target === creditsModal) {
+                closeCredits();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && creditsModal.classList.contains('is-open')) {
+                closeCredits();
+            }
+        });
+
+
+        function formatTime(s) {
+            if (isNaN(s)) return "0:00";
+            const mins = Math.floor(s / 60);
+            const secs = Math.floor(s % 60);
+            return mins + ":" + (secs < 10 ? "0" : "") + secs;
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                isStarted = true;
+                playBtn.innerText = "PAUSE";
+                playBtn.style.color = "#fff";
+            } else {
+                audio.pause();
+                playBtn.innerText = "PLAY";
+                playBtn.style.color = "var(--accent)";
+            }
+        }
+
+        function handleBack() {
+            const idx = getCurrentIndex();
+            if (idx !== -1) {
+                if (audio.currentTime - metadata[idx].start > 3) {
+                    audio.currentTime = metadata[idx].start;
+                } else if (idx > 0) {
+                    audio.currentTime = metadata[idx - 1].start;
+                }
+            }
+        }
+
+        function handleForward() {
+            const idx = getCurrentIndex();
+            if (idx !== -1 && idx < metadata.length - 1) {
+                audio.currentTime = metadata[idx + 1].start;
+            }
+        }
+
+        function getCurrentIndex() {
+            const time = audio.currentTime;
+            return metadata.findLastIndex(m => time >= m.start);
+        }
+
+        function setHeroBackground(imageUrl) {
+            const bgImage = imageUrl ? `url("${imageUrl}")` : "none";
+            document.documentElement.style.setProperty("--hero-bg-image", bgImage);
+        }
+
+        function updateHeroImage(current) {
+            const localImageUrl = current && current.localImageUrl ? current.localImageUrl : "";
+            const remoteImageUrl = current && current.remoteImageUrl ? current.remoteImageUrl : "";
+            const imageUrl = localImageUrl || remoteImageUrl || DEFAULT_HERO_IMAGE;
+            const imageAlt = current
+                ? `${current.artist} — ${current.album}`
+                : 'Santa Fe Bandcamp Best Of';
+
+            if (heroImg.dataset.currentSrc === imageUrl) return;
+
+            heroImg.classList.add("is-changing");
+            setHeroBackground(imageUrl);
+            heroImg.src = imageUrl;
+            heroImg.alt = imageAlt;
+            heroImg.dataset.currentSrc = imageUrl;
+            heroImg.dataset.remoteFallback = remoteImageUrl;
+            heroImg.dataset.defaultFallbackUsed = "false";
+        }
+
+        heroImg.addEventListener('load', () => {
+            heroImg.classList.remove("is-changing");
+            setHeroBackground(heroImg.dataset.currentSrc || heroImg.src);
+        });
+
+        heroImg.addEventListener('error', () => {
+            const remoteFallback = heroImg.dataset.remoteFallback;
+
+            if (remoteFallback && heroImg.src !== remoteFallback) {
+                heroImg.src = remoteFallback;
+                heroImg.dataset.currentSrc = remoteFallback;
+                setHeroBackground(remoteFallback);
+                return;
+            }
+
+            if (heroImg.dataset.defaultFallbackUsed !== "true") {
+                heroImg.src = DEFAULT_HERO_IMAGE;
+                heroImg.alt = 'Santa Fe Bandcamp Best Of';
+                heroImg.dataset.currentSrc = DEFAULT_HERO_IMAGE;
+                heroImg.dataset.defaultFallbackUsed = "true";
+                setHeroBackground(DEFAULT_HERO_IMAGE);
+            }
+        });
+
+
+        audio.addEventListener('ended', () => {
+            audio.currentTime = metadata[0].start;
+            handleMetadataTransition(metadata[0]);
+
+            if (isStarted) {
+                audio.play();
+            }
+        });
+
+        audio.ontimeupdate = () => {
+            const currentIndex = getCurrentIndex();
+            const current = metadata[currentIndex];
+                        
+            if (current) {
+                const relativeTime = audio.currentTime - current.start;
+                const nextSegment = metadata[currentIndex + 1];
+
+                if (!nextSegment && relativeTime >= (current.duration || 10)) {
+                    audio.currentTime = metadata[0].start;
+                    handleMetadataTransition(metadata[0]);
+                    return;
+                }
+                                
+                let segmentDuration;
+                if (nextSegment) {
+                    segmentDuration = nextSegment.start - current.start;
+                } else {
+                    segmentDuration = (audio.duration && !isNaN(audio.duration)) 
+                        ? (audio.duration - current.start) 
+                        : 10;
+                }
+
+                timeCurrent.innerText = formatTime(relativeTime);
+                timeDurationLabel.innerText = formatTime(segmentDuration);
+                                
+                const progressPercent = (relativeTime / segmentDuration) * 100;
+                progressBar.style.width = Math.min(progressPercent, 100) + "%";
+
+                updateHeroImage(current);
+
+                if (isStarted && current.title !== currentTitle) {
+                    handleMetadataTransition(current);
+                }
+            }
+        };
+
+        function renderMetadataDetails(current) {
+            artistEl.innerText = current.artist || "—";
+            albumEl.innerText = current.album || "—";
+
+            buyLinkEl.href = current.bandcampUrl || "https://bandcamp.com/discover?loc=5490263";
+            buyLinkEl.innerText = "Support on Bandcamp 💚";
+
+        }
+
+        renderMetadataDetails(metadata[0]);
+        updateHeroImage(metadata[0]);
+
+        function handleMetadataTransition(current) {
+            const eventChanged = current.event !== currentEvent;
+            contentWrapper.classList.add('fading');
+            if (eventChanged) eventTag.style.opacity = 0;
+
+            setTimeout(() => {
+                eventTag.innerText = current.event;
+                const titleEl = document.getElementById('ui-title');
+                
+                if (current.updated) {
+                    titleEl.classList.add('updated-track');
+                    titleEl.innerText = "✨ " + current.title;
+                } else {
+                    titleEl.classList.remove('updated-track');
+                    titleEl.innerText = current.title;
+                }
+
+                document.getElementById('ui-context').innerText = `${current.artist} — ${current.album}`;
+                updateHeroImage(current);
+                renderMetadataDetails(current);
+                currentTitle = current.title;
+                currentEvent = current.event;
+                contentWrapper.classList.remove('fading');
+                eventTag.style.opacity = 1;
+            }, 400);
+        }
+    </script>
+</body>
+</html>
